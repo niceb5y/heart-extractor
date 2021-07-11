@@ -43,8 +43,18 @@ func Fetch(twitterClient *twitter.Client, favoriteListParams *twitter.FavoriteLi
 		if extendedEntities != nil {
 			for _, media := range extendedEntities.Media {
 				mediaURL := media.MediaURLHttps
-				if media.Type == "photo" {
-					mediaURL += "?name=orig"
+				if len(media.VideoInfo.Variants) > 0 {
+					bitrate := -1
+					for _, variant := range media.VideoInfo.Variants {
+						if variant.Bitrate > bitrate {
+							bitrate = variant.Bitrate
+							mediaURL = variant.URL
+						}
+					}
+				} else {
+					if media.Type == "photo" {
+						mediaURL += "?name=orig"
+					}
 				}
 				*mediaURLs = append(*mediaURLs, mediaURL)
 			}
